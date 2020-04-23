@@ -123,6 +123,38 @@ class TestBadBedTools(unittest.TestCase):
                 open('./test/intersect_s.bed') as res:
             self.assertEqual(bad.intersect(f1, f2, sorting=False, merging=False), res.read())
 
+    def test_getnospacefasta(self):
+        # не знаю как проверять отдельно, проверяю тем что использую этот файл в getfasta()
+        fasta = './test/genome.fa'
+        with open(fasta) as fa:
+            bad.getnospacefasta(fa, outname='./test/no_space_genome.fa')
+
+    def test_faidx(self):
+        f1 = './test/no_space_genome.fa'
+        with open(f1) as f1, \
+                open('./test/no_space_genome.fa.fai') as res:
+            # небольшой изврат чтоб привести в соотвествующий вид
+            # для теста испольвался samtools faidx (у него в конце пустая строка) + у из
+            # него оставил только первые 3 колонки
+            # парсим словарь в строку
+            my_faidx = ''
+            for key, value in bad.faidx(f1).items():
+                my_faidx += key + '\t' + '\t'.join(map(str, value)) + '\n'
+            # сравниваем
+            self.assertEqual(my_faidx, res.read())
+            # вуаля
+
+    def test_getfasta(self):
+        fasta = './test/no_space_genome.fa'
+        bed = './test/small_bed_1.bed'  # ускорял как мог, оч долго работает,
+        # поэтому на маленьком файле тест
+        with open(fasta) as fa, open(bed) as bedfile, open('./test/no_space_getfasta.fa') as res:
+            outname = './test/my_getfasta.fa'
+            bad.getfasta(bedfile, fa, outname)
+            with open(outname) as my_getfasta:
+                self.assertEqual(my_getfasta.read(), res.read())
+
+
 if __name__ == '__main__':
     suite = unittest.defaultTestLoader.loadTestsFromTestCase(Test)
     unittest.TextTestRunner().run(suite)

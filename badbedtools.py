@@ -1,6 +1,7 @@
 # Dependencies
 from operator import itemgetter
-import locale
+
+
 # check file extension
 def check_extension(extension: str):
     bed_variant_extensions = ['bed' + str(num) for num in range(1, 13)] + ['bed']
@@ -35,13 +36,13 @@ def extract_intervals(intervals_list: list, extension):
 
     if extension in ['bed' + str(num) for num in range(1, 13)] + ['bed']:
         for line in intervals_list:
-                just_intervals += [[line[0], line[1], line[2]]]
+            just_intervals += [[line[0], line[1], line[2]]]
     elif extension == 'vcf':
         for line in intervals_list:
-                just_intervals += [[line[0], line[1], line[1] + 1]]
+            just_intervals += [[line[0], line[1], line[1] + 1]]
     elif extension == 'gff':
         for line in intervals_list:
-                just_intervals += [[line[0], line[3], line[4]]] #??? в gff точно так?
+            just_intervals += [[line[0], line[3], line[4]]]  # ??? в gff точно так?
 
     return just_intervals
 
@@ -61,7 +62,7 @@ def overlap(interval_1, interval_2, max_distance=0):
 
 
 def delete_overlaps_intervals_in_list(intervals_list, intervals_list_sub,
-             extension, extension_sub):
+                                      extension, extension_sub):
     # make undesirable_intervals
     intervals = extract_intervals(intervals_list, extension)
     intervals_sub = extract_intervals(intervals_list_sub, extension_sub)
@@ -185,7 +186,6 @@ def intersect_intervals(intervals_1, intervals_2, subtract=False):
                         intersected_intervals.append([chrom1, start2, end2])
                         start1 = end2  # end1 остается
 
-
             # добавляем интервал новый если чет осталось
         if not full_overlaped and subtract:  # Если не перекрылся ни с кем при вычитании добавляем
             intersected_intervals.append([chrom1, start1, end1])
@@ -193,7 +193,7 @@ def intersect_intervals(intervals_1, intervals_2, subtract=False):
 
 
 def intersect_intervals_list(intervals_list, intervals_list_int, extension, extension_int,
-              subtract=False):
+                             subtract=False):
     # Если использовать как сейчас лишний шаг, но если опционально выключать сорт
     # и мердж лучше оставить
     intervals = extract_intervals(intervals_list, extension)
@@ -229,7 +229,6 @@ def convert_intervals_to_str(intervals, comments=[]):
     return result
 
 
-
 # Sort bed/vcf/gff
 def sort(bed_vcf_gff_file, extension='bed'):
     """
@@ -248,8 +247,9 @@ def sort(bed_vcf_gff_file, extension='bed'):
     # возвращаем строку готовую для записи в файл
     return results
 
-def subtract_A(bed_vcf_gff_file,bed_vcf_gff_subtracted_file,
-             extension_1='bed', extension_2='bed', sorting=True, merging=True):
+
+def subtract_A(bed_vcf_gff_file, bed_vcf_gff_subtracted_file,
+               extension_1='bed', extension_2='bed', sorting=True, merging=True):
     """
         Delete intervals that is overlapped by another feature(s)
         :param bed_vcf_gff_file: File in <bed/gff/vcf> format.
@@ -283,17 +283,19 @@ def subtract_A(bed_vcf_gff_file,bed_vcf_gff_subtracted_file,
 
     # Вычитаем
     no_overlap_interval, count_overlaps, count_no_overlaps = delete_overlaps_intervals_in_list(intervals_list,
-                                                                                      intervals_list_sub,
-                                                                                      extension_1,
-                                                                                      extension_2)
+                                                                                               intervals_list_sub,
+                                                                                               extension_1,
+                                                                                               extension_2)
     # Можно добавить добавление комментария о вычитании файла
     result = convert_intervals_to_str(no_overlap_interval, comment_lines_list)
     # Статистику выводим (для консольной версии)
     # print(f"""There are {count_overlaps} overlaps in file1 with file2.
     # And {count_no_overlaps} are not overlaped intervals.""")
     return result
+
+
 # Subtract intrevals bed/vcf/gff from bed/vcf/gff
-def subtract(bed_vcf_gff_file,bed_vcf_gff_subtracted_file,
+def subtract(bed_vcf_gff_file, bed_vcf_gff_subtracted_file,
              extension_1='bed', extension_2='bed', sorting=True, merging=True):
     """
     Removes the portion(s) of an interval that is overlapped by another feature(s)
@@ -323,27 +325,23 @@ def subtract(bed_vcf_gff_file,bed_vcf_gff_subtracted_file,
         # Мерджим
         intervals_list, count_merges = merge_intervals_list(intervals_list, extension_1, )
         intervals_list_sub, count_merges_sub = merge_intervals_list(intervals_list_sub,
-                                                   extension_2)
+                                                                    extension_2)
         # После merge у нас уже все в bed формате
         extension_1 = 'bed'
         extension_2 = 'bed'
 
-
-
     # Вычитаем
     no_overlap_interval = intersect_intervals_list(intervals_list,
-                                                  intervals_list_sub,
-                                                  extension_1,
-                                                  extension_2,
-                                                  subtract=True)
+                                                   intervals_list_sub,
+                                                   extension_1,
+                                                   extension_2,
+                                                   subtract=True)
     # Можно добавить добавление комментария о вычитании файла
     result = convert_intervals_to_str(no_overlap_interval, comment_lines_list)
     # Статистику выводим (для консольной версии)
     # print(f"""There are {count_overlaps} overlaps in file1 with file2.
     # And {count_no_overlaps} are not overlaped intervals.""")
     return result
-
-
 
 
 def merge(bed_vcf_gff_file, extension='bed', max_distance=0, sorting=True):
@@ -375,6 +373,7 @@ def merge(bed_vcf_gff_file, extension='bed', max_distance=0, sorting=True):
     # print(f"""Merged overlaps with max distance: {max_distance}.
     # There are {count_merges} overlaps merged.""")
     return result
+
 
 # intersect == subtract
 # reverse intersect == intersect
@@ -409,7 +408,7 @@ def intersect(bed_vcf_gff_file, bed_vcf_gff_intersect_file,
         intervals_list, count_merges = merge_intervals_list(intervals_list,
                                                             extension)
         intervals_list_int, count_merges_int = merge_intervals_list(intervals_list_int,
-                                                       extension_int)
+                                                                    extension_int)
         # После merge у нас уже все в bed формате
         extension = 'bed'
         extension_int = 'bed'
@@ -423,3 +422,95 @@ def intersect(bed_vcf_gff_file, bed_vcf_gff_intersect_file,
     # Конвертим листы интервалов в строку
     result = convert_intervals_to_str(intersected_intervals)
     return result
+
+
+def getnospacefasta(fastafile, outname):
+    """
+    If you haven't fasta without space, use it
+    :param fastafile: File in fasta format
+    :param outname: Output dir and name
+    :return: None (write file in the specified directory)
+    """
+    with open(outname, 'w') as outfasta:
+        ful_seq = []
+        for line in fastafile:
+            if line.startswith('>'):
+                if ful_seq:
+                    outfasta.write(chrom_name + ''.join(ful_seq) + '\n')
+                    ful_seq = []
+                chrom_name = line
+            else:
+                ful_seq.append(line.rstrip())
+        outfasta.write(chrom_name + ''.join(ful_seq) + '\n')
+
+
+def faidx(fastafile):
+    # Идем по файлу и записываем номер байта каждой хромосомы
+    chr_pos = dict()
+    not_first_iter = False
+
+    for line in iter(fastafile.readline, ''):
+        if line.startswith('>'):  # останавливаемся на строчке которая характерезует название
+            if not_first_iter:  # первую итерацию пропускаем
+                chr_pos[chr_name] = [count_length, cur_byte]
+            count_length = 0
+            cur_byte = fastafile.tell()
+            chr_name = line.lstrip('>').rstrip()
+            not_first_iter = True
+            continue
+        count_length += len(line.rstrip())
+    chr_pos[chr_name] = [count_length, cur_byte]
+    # Ребутаем файл
+    fastafile.seek(0)
+    # возвращаем словарь
+    return chr_pos
+
+
+def getfasta(bed_vcf_gff, fastafile, outname, extension='bed'):
+    """
+    Extract DNA sequences from a fasta file based on feature coordinates.
+    :param bed_vcf_gff: File in bed_vcf_gff formats
+    :param fastafile: Fasta file !!! without spaces in sequence !!!
+    :param outname: Name for output file.
+    :param extension: Extension for interval file. Default = 'bed'
+    :return: None (write file in the specified directory)
+    """
+    # Make fasta index
+    fasta_index = faidx(fastafile)
+    # Сплитим
+    comment_lines_list, lines_list = split_comments(bed_vcf_gff, extension)
+    # Достаем интервалы
+    intervals_list = extract_intervals(lines_list, extension)
+    # So now we can iterate on each chromosome separately
+    result_fasta = []
+    w = open(outname, 'w')
+    for interval in intervals_list:
+        chrom = interval[0]
+        start = interval[1]
+        end = interval[2]
+        length = end - start
+        if chrom not in fasta_index:
+            continue  # тут можно какую-то ошибку выдать или варнинг
+        if end > fasta_index[chrom][0]:
+            continue  # тут если конец интервала больше длинны хромосомы продолжаем
+        # событие что старт нормальный, а энд больше не буду пока рассматривать
+
+        chrom_file_pos = fasta_index[chrom][1]
+        # читаем файл с нашей хромосомы сразу с нужной позиции
+        # тут ВАЖНО работает с файлом только без пробелов
+        # можно ввести доп функцию чтоб указывать длинну строки тогда будет работать
+        # и на файлах с одинаковой длинной строк
+        fastafile.seek(chrom_file_pos + start)
+
+        # make header
+        fastaheader = '>' + chrom + ':' + str(interval[1]) + '-' + str(interval[2]) + '\n'
+        w.write(fastaheader)
+        for cur_pos, nucl in enumerate(fastafile.read()):
+            if cur_pos + 1 <= length:  # end не входит
+                w.write(nucl)
+            else:
+                break
+        w.write('\n')
+
+    w.close()
+    # функция не должна ничего возвращать

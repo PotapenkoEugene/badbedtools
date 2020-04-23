@@ -21,7 +21,7 @@ This tool disgustingly copies bedtools functions such as:
 
 # Bad description of functions:
 
-import badtools as bad
+**import badbedtools as bad**
 
 
 ## sort() - Function for sorting <bed/gff/vcf>
